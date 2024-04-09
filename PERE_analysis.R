@@ -21,6 +21,7 @@ library(glmm)
 library(cowplot)
 library(RColorBrewer)
 library(gginnards)
+library(ggthemr)
 
 #Load data
 pere_data <- read.csv("final_SLA_data_12mar2024.csv", header = TRUE)
@@ -145,74 +146,81 @@ anova(lm1, lm2, lm3, lm4, lm5)
 
 # Visualization -----------------------------------------------------------
 
+#For presentation on 19mar2024
+
+    #SLA by site
+    ggplot(pere_data) +
+      aes(x = site, y = mean_SLA, color = site) +
+      geom_jitter() +
+      geom_boxplot(alpha = 0.5) +
+      xlab("") + ylab("") +
+      theme(axis.text = element_text(size=16)) +
+      scale_color_brewer(palette ="Paired")
+
+    ggplot(pere_data) +
+      aes(x = site, y = mean_SLA, color = site) +
+      geom_jitter() +
+      scale_color_brewer(palette ="Paired")
+
+    #SLA by elevation
+    ep <- ggplot(pere_data_mean) +
+      aes(x = elevation, y = mean_SLA) +
+      geom_jitter(aes(color = site), size = 3) +
+      xlab("") + ylab("") + ylim(12,22) +
+      theme(legend.position="right") +
+      theme(axis.text = element_text(size=20), plot.margin=unit(c(0.25, 0.25, 0.25, 0.25), "inches")) +
+      scale_color_brewer(palette ="Paired"); ep
+
+    #SLA by precipitation
+    pp <- ggplot(pere_data_mean, aes(x= mean_precip, y = mean_SLA)) +
+      geom_jitter(aes(fill = site), size = 3, shape = 21, color = "black") +
+      geom_smooth(method = lm) +
+      xlab("") + ylab("") + ylim(8,27) +
+      theme(legend.position="left") +
+      theme(axis.text = element_text(size=20), plot.margin=unit(c(0.25, 0.25, 0.25, 0.25), "inches")) +
+      scale_color_brewer(palette ="Set3"); pp
+
+    pp <- pp + geom_jitter(data = pere_data, aes(color = site), alpha = 0.3) + scale_color_brewer(palette ="Paired")
+
+    move_layers(pp, "GeomPoint", position = "bottom")
 
 
-#SLA by site
-ggplot(pere_data) +
-  aes(x = site, y = mean_SLA, color = site) +
-  geom_jitter() +
-  geom_boxplot(alpha = 0.5) +
-  xlab("") + ylab("") +
-  theme(axis.text = element_text(size=16)) +
-  scale_color_brewer(palette ="Paired")
 
-ggplot(pere_data) +
-  aes(x = site, y = mean_SLA, color = site) +
-  geom_jitter() +
-  scale_color_brewer(palette ="Paired")
+    ppp <- ggplot(pere_data, aes(x = mean_precip, y = mean_SLA)) +
+      geom_jitter(aes(color = site), width = 2.5) +
+      stat_summary(fun.data = mean_se, color = "black", shape = 21, size = 1) +
+      xlab("") + ylab("") +
+      theme(axis.text = element_text(size=16)) +
+      scale_color_brewer(palette ="Set3"); ppp
 
-#SLA by elevation
-ep <- ggplot(pere_data_mean) +
-  aes(x = elevation, y = mean_SLA) +
-  geom_jitter(aes(color = site), size = 3) +
-  xlab("") + ylab("") + ylim(12,22) +
-  theme(legend.position="right") +
-  theme(axis.text = element_text(size=20), plot.margin=unit(c(0.25, 0.25, 0.25, 0.25), "inches")) +
-  scale_color_brewer(palette ="Paired"); ep
+    ppp + stat_smooth(method = "lm", formula = y ~ x, geom = "smooth", color = "black")
 
-#SLA by precipitation
-pp <- ggplot(pere_data_mean, aes(x= mean_precip, y = mean_SLA)) +
-  geom_jitter(aes(fill = site), size = 3, shape = 21, color = "black") +
-  geom_smooth(method = lm) +
-  xlab("") + ylab("") + ylim(8,27) +
-  theme(legend.position="left") +
-  theme(axis.text = element_text(size=20), plot.margin=unit(c(0.25, 0.25, 0.25, 0.25), "inches")) +
-  scale_color_brewer(palette ="Set3"); pp
+    #SLA by VPD
+    vp <- ggplot(pere_data_mean, aes(x= mean_VPD, y = mean_SLA)) +
+      geom_jitter(aes(color = site), size = 3) +
+      xlab("") + ylab("") + ylim(12,22) +
+      theme(legend.position="none") +
+      theme(axis.text = element_text(size=20), plot.margin=unit(c(0.25, 0.25, 0.25, 0.25), "inches")) +
+      scale_color_brewer(palette ="Paired"); vp
 
-pp <- pp + geom_jitter(data = pere_data, aes(color = site), alpha = 0.3) + scale_color_brewer(palette ="Paired")
+    #SLA by winter temperature
+    tp <- ggplot(pere_data_mean, aes(x= mean_temp, y = mean_SLA)) +
+      geom_jitter(aes(color = site), size = 3) +
+      xlab("") + ylab("") + ylim(12,22) + xlim(10,18) +
+      theme(legend.position="none") +
+      theme(axis.text = element_text(size=20), plot.margin=unit(c(0.25, 0.25, 0.25, 0.25), "inches")) +
+      scale_color_brewer(palette ="Paired"); tp
 
-move_layers(pp, "GeomPoint", position = "bottom")
+    #putting plots together
+    legend <- get_legend(ep)
+    ep <- ep + theme(legend.position="none")
+    plot_grid(ep, pp, vp, tp, nrow = 2, ncol = 2)
+    grid.arrange(ep, pp, vp, tp, nrow = 2, ncol = 2,
+                 widths = c(2.5, 2.5))
 
-
-
-ppp <- ggplot(pere_data, aes(x = mean_precip, y = mean_SLA)) +
-  geom_jitter(aes(color = site), width = 2.5) +
-  stat_summary(fun.data = mean_se, color = "black", shape = 21, size = 1) +
-  xlab("") + ylab("") +
-  theme(axis.text = element_text(size=16)) +
-  scale_color_brewer(palette ="Set3"); ppp
-
-ppp + stat_smooth(method = "lm", formula = y ~ x, geom = "smooth", color = "black")
-
-#SLA by VPD
-vp <- ggplot(pere_data_mean, aes(x= mean_VPD, y = mean_SLA)) +
-  geom_jitter(aes(color = site), size = 3) +
-  xlab("") + ylab("") + ylim(12,22) +
-  theme(legend.position="none") +
-  theme(axis.text = element_text(size=20), plot.margin=unit(c(0.25, 0.25, 0.25, 0.25), "inches")) +
-  scale_color_brewer(palette ="Paired"); vp
-
-#SLA by winter temperature
-tp <- ggplot(pere_data_mean, aes(x= mean_temp, y = mean_SLA)) +
-  geom_jitter(aes(color = site), size = 3) +
-  xlab("") + ylab("") + ylim(12,22) + xlim(10,18) +
-  theme(legend.position="none") +
-  theme(axis.text = element_text(size=20), plot.margin=unit(c(0.25, 0.25, 0.25, 0.25), "inches")) +
-  scale_color_brewer(palette ="Paired"); tp
-
-#putting plots together
-legend <- get_legend(ep)
-ep <- ep + theme(legend.position="none")
-plot_grid(ep, pp, vp, tp, nrow = 2, ncol = 2)
-grid.arrange(ep, pp, vp, tp, nrow = 2, ncol = 2,
-             widths = c(2.5, 2.5))
+#For GPSC proposal
+ggplot(data = pere_data_mean) + aes(x = mean_precip, y = mean_SLA) +
+  geom_point(size = 4) +
+  geom_smooth(method = "lm") +
+  xlab("Mean Total Winter Precipitation (mm)") + ylab("Mean Specific Leaf Area (mm2/mg)") +
+  theme_classic()
