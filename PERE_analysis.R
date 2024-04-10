@@ -22,40 +22,20 @@ library(cowplot)
 library(RColorBrewer)
 library(gginnards)
 library(ggthemr)
+library(Hmisc)
+library(PerformanceAnalytics)
 
 #Load data
-pere_data <- read.csv("final_SLA_data_12mar2024.csv", header = TRUE)
-str(pere_data)
-
-# Data Wrangling ----------------------------------------------------------
-
-#remove timestamp column
-pere_data <- subset(pere_data, select = -c(Timestamp))
-
-#remove all rows with an NA in at least one column
-pere_data <- pere_data[complete.cases(pere_data),]
-
-#make a new column with just the site acronym
-pere_data <- pere_data %>% mutate(site = substr(ID, start = 1, stop = 2))
-
-#make a new column with the mean SLA for each leaf
-pere_data <- pere_data %>% group_by(site, Plant) %>% mutate(mean_SLA = mean(SLA_.mm..mg.))
-
-pere_data_mean <- pere_data %>% group_by(site, order, trip) %>% summarize(mean_SLA = mean(SLA_.mm..mg.),
-                                                                    median_SLA = median(SLA_.mm..mg.),
-                                                                    mean_temp = mean(mean_temp),
-                                                                    mean_precip = mean(mean_precip),
-                                                                    mean_VPD = mean(mean_VPD),
-                                                                    elevation = mean(elevation))
-
-
-#get site climate data
-pere_site_climate <- pere_data %>% group_by(site) %>% summarize(temp = mean(mean_temp),
-                                                                precip = mean(mean_precip),
-                                                                VPD = mean(mean_VPD),
-                                                                elevation = mean(elevation))
+pere_data_mean <- read.csv("pere_data_mean.csv", header = TRUE)
 
 # Analysis ----------------------------------------------------------------
+
+# Assess correlation between independent variables (elevation, VPD, temp, precip, SLA)
+c <- rcorr(as.matrix(pere_data_mean[,5:10])) # compute correlations and p-values
+
+chart.Correlation(pere_data_mean[,5:10], histogram = TRUE, pch = 20) # visualize
+
+
 #Check for normality
 hist(pere_data_mean$mean_SLA)
 qqnorm(pere_data_mean$mean_SLA)
@@ -219,8 +199,16 @@ anova(lm1, lm2, lm3, lm4, lm5)
                  widths = c(2.5, 2.5))
 
 #For GPSC proposal
-ggplot(data = pere_data_mean) + aes(x = mean_precip, y = mean_SLA) +
-  geom_point(size = 4) +
-  geom_smooth(method = "lm") +
+ggplot(data = pere_data_mean, aes(x = mean_precip, y = mean_SLA)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE) +
   xlab("Mean Total Winter Precipitation (mm)") + ylab("Mean Specific Leaf Area (mm2/mg)") +
   theme_classic()
+
+?plot
+
+plot(x = pere_data_mean$mean_precip, y = pere_data_mean$mean_SLA,
+     xlab = "Mean Winter Precipitation (mm)",
+     ylab = "Mean Specific Leaf Area (mm2/2mg)")
+
+abline(lm(pere_data_mean$mean_SLA ~ pere_data_mean$mean_precip))
