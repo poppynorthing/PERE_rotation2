@@ -24,21 +24,33 @@ library(gginnards)
 library(ggthemr)
 library(Hmisc)
 library(PerformanceAnalytics)
+library(broom)
 
 #Load data
 pere_data_mean <- read.csv("pere_data_mean.csv", header = TRUE)
 
 # Analysis ----------------------------------------------------------------
 
-# Assess correlation between independent variables (elevation, VPD, temp, precip, SLA)
-c <- rcorr(as.matrix(pere_data_mean[,5:10])) # compute correlations and p-values
+  # Assess correlation between independent variables (elevation, VPD, temp, precip, SLA)
+  c <- rcorr(as.matrix(pere_data_mean[,5:10])) # compute correlations and p-values
 
-chart.Correlation(pere_data_mean[,5:10], histogram = TRUE, pch = 20) # visualize
+  chart.Correlation(pere_data_mean[,5:10], histogram = TRUE, pch = 20) # visualize
 
+  #Check linear model assumptions
+  model <- lm(mean_SLA ~ mean_temp + mean_precip + mean_VPD + elevation, data = pere_data_mean)
+  model
 
-#Check for normality
-hist(pere_data_mean$mean_SLA)
-qqnorm(pere_data_mean$mean_SLA)
+  par(mfrow = c(2, 2)) #show all four plots to follow at once in a 2x2 grid
+  plot(model) #gives all four diagnostic plots
+  qqnorm(pere_data_mean$mean_SLA) #gives just qq plot
+
+  #look at residuals visually
+  model.diag.metrics <- augment(model)
+  ggplot(model.diag.metrics, aes(mean_temp, mean_SLA)) +
+    geom_point() +
+    stat_smooth(method = lm, se = FALSE) +
+    geom_segment(aes(xend = mean_temp, yend = .fitted), color = "red", size = 0.3)
+
 
 mod1 <- lm(mean_SLA ~ site, data = pere_data_mean)
 par(mfrow = c(2,2))
@@ -63,7 +75,7 @@ letters <- as.data.frame.list(letters$site)
 
 emmeans(a1, specs = "site") %>% pairs()
 
-#Linear modelling of environmental factors
+#Linear modelling of individual environmental factors w/ mean and median SLA
 
 #SLA ~ temp
 lm_temp <- lm(mean_SLA ~ mean_temp, data = pere_data_mean)
@@ -92,6 +104,11 @@ summary(lm_elevation)
 
 lm_elevation2 <- lm(median_SLA ~ elevation, data = pere_data_mean)
 summary(lm_elevation2)
+
+#Hierarchical model comparison
+m1 <- lm(mean_SLA ~ mean_precip, data = pere_data_mean)
+summary(m1)
+
 
 #Mixed effects modelling
 #precipitation
