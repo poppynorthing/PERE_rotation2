@@ -27,7 +27,7 @@ names(sites) <- c(lat_name, long_name)
 
 # Plot the temp and precip data for December (month 2) with sites
 
-# Avg Temp
+# Avg Winter Temp
 plot(tavg$USA_wc2.1_30s_tavg_12, xlim = c(-116,-108), ylim = c(31,37.8))
 points(sites$longitude, sites$latitude, pch = 16, col = "black")
 plot(us, border = "black", lwd = 1, add = TRUE)
@@ -38,3 +38,4 @@ plot(us, border = "black", lwd = 1, add = TRUE)
 points(sites$longitude, sites$latitude, pch = 8, col = "black")
 mtext("Precipitation (mm)", side = 4)
 
+?options

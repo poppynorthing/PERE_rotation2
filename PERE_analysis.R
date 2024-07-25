@@ -146,7 +146,7 @@ anova(lm1, lm2, lm3, lm4, lm5)
 #For presentation on 19mar2024
 
     #SLA by site
-    ggplot(pere_data) +
+    ggplot(pere_data_mean) +
       aes(x = site, y = mean_SLA, color = site) +
       geom_jitter() +
       geom_boxplot(alpha = 0.5) +
@@ -154,7 +154,7 @@ anova(lm1, lm2, lm3, lm4, lm5)
       theme(axis.text = element_text(size=16)) +
       scale_color_brewer(palette ="Paired")
 
-    ggplot(pere_data) +
+    ggplot(pere_data_mean) +
       aes(x = site, y = mean_SLA, color = site) +
       geom_jitter() +
       scale_color_brewer(palette ="Paired")
@@ -183,7 +183,7 @@ anova(lm1, lm2, lm3, lm4, lm5)
 
 
 
-    ppp <- ggplot(pere_data, aes(x = mean_precip, y = mean_SLA)) +
+    ppp <- ggplot(pere_data_mean, aes(x = mean_precip, y = mean_SLA)) +
       geom_jitter(aes(color = site), width = 2.5) +
       stat_summary(fun.data = mean_se, color = "black", shape = 21, size = 1) +
       xlab("") + ylab("") +
@@ -217,8 +217,8 @@ anova(lm1, lm2, lm3, lm4, lm5)
 
 #For GPSC proposal
 ggplot(data = pere_data_mean, aes(x = mean_precip, y = mean_SLA)) +
-  geom_point(size = 3) +
-  geom_smooth(method = "lm", se = FALSE) +
+  geom_point(size = 3, color = "#2E5F7F") +
+  geom_smooth(method = "lm", se = FALSE, color = "#9CA357") +
   xlab("Mean Total Winter Precipitation (mm)") + ylab("Mean Specific Leaf Area (mm2/mg)") +
   theme_classic()
 
