@@ -1,28 +1,33 @@
-# Preparing raw data for analysis
-# Poppy Northing
-# pcnorthing@arizona.edu
-# 09apr2024
+# Title: Preparing raw data for analysis
+# Author: Poppy Northing; pcnorthing@arizona.edu
+# Last edited: 03 DEC 2024
 
 # Load Libraries
-library(dplyr)
+library(tidyverse)
 
 # Load data
-pere_data <- read.csv("final_SLA_data_12mar2024.csv", header = TRUE)
-str(pere_data)
+pere_sla_data <- read.csv("Data/final_SLA_data_12mar2024.csv", header = TRUE)
+pere_isotope_data <- read.csv("Data/isotope/processed_isotope_data.csv", header = TRUE)
+pere_metadata <- read.csv("Data/isotope/sample_metadata.csv", header = TRUE)
+pere_metadata <- pere_metadata[,1:5] # remove extra weird columns to the right
 
-#remove timestamp column
-pere_data <- subset(pere_data, select = -c(Timestamp))
+################
+### SLA DATA ###
+################
 
-#remove all rows with an NA in at least one column
-pere_data <- pere_data[complete.cases(pere_data),]
+# remove time stamp column
+pere_sla_data <- subset(pere_sla_data, select = -c(Timestamp))
 
-#make a new column with just the site acronym
-pere_data <- pere_data %>% mutate(site = substr(ID, start = 1, stop = 2))
+# remove all rows with an NA in at least one column
+pere_sla_data <- pere_sla_data[complete.cases(pere_sla_data),]
 
-#make a new column with the mean SLA for each leaf
-pere_data <- pere_data %>% group_by(site, Plant) %>% mutate(mean_SLA = mean(SLA_.mm..mg.))
+# make a new column with just the site acronym
+pere_sla_data <- pere_sla_data %>% mutate(site = substr(ID, start = 1, stop = 2))
 
-pere_data_mean <- pere_data %>% group_by(site, order, trip) %>% summarize(mean_SLA = mean(SLA_.mm..mg.),
+# make a new column with the mean SLA for each leaf
+pere_sla_data <- pere_sla_data %>% group_by(site, Plant) %>% mutate(mean_SLA = mean(SLA_.mm..mg.))
+
+pere_sla_data_mean <- pere_sla_data %>% group_by(site, order, trip) %>% summarize(mean_SLA = mean(SLA_.mm..mg.),
                                                                           median_SLA = median(SLA_.mm..mg.),
                                                                           mean_temp = mean(mean_temp),
                                                                           mean_precip = mean(mean_precip),
@@ -30,12 +35,38 @@ pere_data_mean <- pere_data %>% group_by(site, order, trip) %>% summarize(mean_S
                                                                           elevation = mean(elevation))
 
 # Write cleaned data to new csv
-write.csv(pere_data_mean, file = "pere_data_mean.csv")
+write.csv(pere_sla_data_mean, file = "pere_sla_data_mean.csv")
 
 
+####################
+### ISOTOPE DATA ###
+####################
 
-#get site climate data
-pere_site_climate <- pere_data %>% group_by(site) %>% summarize(temp = mean(mean_temp),
+# First, I want to append population information, sample ID, sample weight, and SLA to my isotope data frame
+
+# add metadata
+pere_isotope_data_full <- pere_isotope_data %>% left_join(x = pere_isotope_data, y = pere_metadata, by = "sample")
+
+# add SLA
+
+plant_sla <- pere_sla_data %>% group_by(site, Plant) %>%
+  summarise(mean_sla = mean(SLA_.mm..mg.)) %>% # get SLA summarized per plant
+  mutate(plant_ID = paste(site, Plant, sep = "")) # add column with plant ID format like isotope metadata
+
+pere_isotope_data_fuller <- pere_isotope_data_full %>% left_join(y = plant_sla, by = "plant_ID") # add SLA data
+
+# now, remove columns that I don't need
+
+final_isotope_data <- pere_isotope_data_fuller %>% subset(select = -c(site.x, site.y, leaves, Plant))
+
+write.csv(final_isotope_data, file = "Data/isotope/isotopes_with_metadata.csv") # make a file to save this data frame to
+
+####################
+### CLIMATE DATA ###
+####################
+
+# get site climate data
+pere_site_climate <- pere_sla_data %>% group_by(site) %>% summarize(temp = mean(mean_temp),
                                                                 precip = mean(mean_precip),
                                                                 VPD = mean(mean_VPD),
                                                                 elevation = mean(elevation))
