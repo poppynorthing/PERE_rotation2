@@ -68,7 +68,7 @@ precip_total_per_site <- sites %>% group_by(Name) %>% summarise(total_ppt = sum(
 
 # Visualization -----------------------------------------------------------
 
-mean_site_data <- read.csv("/Users/pnorthing/Documents/grad_school/site_climate_data.csv")
+mean_site_data <- read.csv("Data/climate/site_climate_data.csv")
 
 #plot each variable together in a matrix
 plot(mean_site_data[,3:6])

@@ -1,8 +1,6 @@
 #Author: Poppy Northing
-#Title: Analysis Script for PERE traits across Sites
-#Last edited: 22FEB2024
-
-#test change
+#Title: Analysis Script for PERE traits across sites
+#Last edited: 03dec2024
 
 #Load libraries
 library(tidyverse)
@@ -27,7 +25,7 @@ library(PerformanceAnalytics)
 library(broom)
 
 #Load data
-pere_data_mean <- read.csv("pere_data_mean.csv", header = TRUE)
+pere_data_mean <- read.csv("Data/pere_data_mean.csv", header = TRUE)
 
 # Analysis ----------------------------------------------------------------
 

@@ -35,7 +35,7 @@ pere_sla_data_mean <- pere_sla_data %>% group_by(site, order, trip) %>% summariz
                                                                           elevation = mean(elevation))
 
 # Write cleaned data to new csv
-write.csv(pere_sla_data_mean, file = "pere_sla_data_mean.csv")
+write.csv(pere_sla_data_mean, file = "pere_sla_data_mean.csv", row.names=FALSE)
 
 
 ####################
@@ -59,7 +59,7 @@ pere_isotope_data_fuller <- pere_isotope_data_full %>% left_join(y = plant_sla, 
 
 final_isotope_data <- pere_isotope_data_fuller %>% subset(select = -c(site.x, site.y, leaves, Plant))
 
-write.csv(final_isotope_data, file = "Data/isotope/isotopes_with_metadata.csv") # make a file to save this data frame to
+write.csv(final_isotope_data, file = "Data/isotope/isotopes_with_metadata.csv", row.names=FALSE) # make a file to save this data frame to
 
 ####################
 ### CLIMATE DATA ###
