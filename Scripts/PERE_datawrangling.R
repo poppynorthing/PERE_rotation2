@@ -35,14 +35,14 @@ pere_sla_data_mean <- pere_sla_data %>% group_by(site, order, trip) %>% summariz
                                                                           elevation = mean(elevation))
 
 # Write cleaned data to new csv
-write.csv(pere_sla_data_mean, file = "pere_sla_data_mean.csv", row.names=FALSE)
+write.csv(pere_sla_data_mean, file = "Data/SLA/pere_sla_data_mean.csv", row.names=FALSE)
 
 
 ####################
 ### ISOTOPE DATA ###
 ####################
 
-# First, I want to append population information, sample ID, sample weight, and SLA to my isotope data frame
+# First, I want to append population information, sample ID, sample weight, SLA, and climate data to my isotope data frame
 
 # add metadata
 pere_isotope_data_full <- pere_isotope_data %>% left_join(x = pere_isotope_data, y = pere_metadata, by = "sample")
@@ -55,9 +55,12 @@ plant_sla <- pere_sla_data %>% group_by(site, Plant) %>%
 
 pere_isotope_data_fuller <- pere_isotope_data_full %>% left_join(y = plant_sla, by = "plant_ID") # add SLA data
 
+# add a column for N mass
+pere_isotope_data_fuller <- pere_isotope_data_fuller %>% mutate(N_mass = N_percent * combined_weight / 100)
+
 # now, remove columns that I don't need
 
-final_isotope_data <- pere_isotope_data_fuller %>% subset(select = -c(site.x, site.y, leaves, Plant))
+final_isotope_data <- pere_isotope_data_fuller %>% subset(select = -c(site.y, leaves, Plant))
 
 write.csv(final_isotope_data, file = "Data/isotope/isotopes_with_metadata.csv", row.names=FALSE) # make a file to save this data frame to
 
