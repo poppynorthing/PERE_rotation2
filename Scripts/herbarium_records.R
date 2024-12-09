@@ -4,15 +4,16 @@
 
 library(tidyverse)
 
-
 # Occurrences -------------------------------------------------------------
 #Really gives you all the data that you would want...
-herb_occs <- read.csv("occurrences.csv")
+herb_occs <- read.delim("occurrences.csv",sep = ",")
 herb_occs <- arrange(herb_occs, year)
 View(herb_occs)
 
+herb_occs %>% group_by(year) %>% mutate(counts = n()) %>% ggplot(aes(x = as.factor(year))) + geom_bar() + theme_classic()
+
 # Identifications ---------------------------------------------------------
-#Identifications: gives date ~identified~ + name of id-er 
+#Identifications: gives date ~identified~ + name of id-er
 herb_ids <- read.csv("identifications.csv")
 herb_ids <- arrange(herb_ids, dateIdentified)
 View(herb_ids)

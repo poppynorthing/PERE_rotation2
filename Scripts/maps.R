@@ -44,10 +44,10 @@ names(monica_sites) <- c(lat_name, long_name)
 pere_taxon_key <- name_backbone("Pectocarya recurvata")
 
 occ_download(pred("taxonKey", pere_taxon_key$usageKey),
-                  user = "pcnorthing",
-                  pwd = "5Mp4!R@u8XdnKez",
-                  email = "pcnorthing@arizona.edu",
-                  format = "SIMPLE_CSV")
+             user = "pcnorthing",
+             pwd = "5Mp4!R@u8XdnKez",
+             email = "pcnorthing@arizona.edu",
+             format = "SIMPLE_CSV")
 
 d <- occ_download_get('0001217-241107131044228') %>%
   occ_download_import()
