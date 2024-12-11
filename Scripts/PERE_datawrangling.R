@@ -50,7 +50,7 @@ pere_isotope_data_full <- pere_isotope_data %>% left_join(x = pere_isotope_data,
 # add SLA
 
 plant_sla <- pere_sla_data %>% group_by(site, Plant) %>%
-  summarise(mean_sla = mean(SLA_.mm..mg.)) %>% # get SLA summarized per plant
+  summarise(mean_sla = mean(SLA_.mm..mg.), temp = mean(mean_temp), precip = mean(mean_precip), elev = mean(elevation), vpd = mean(mean_VPD)) %>% # get SLA summarized per plant
   mutate(plant_ID = paste(site, Plant, sep = "")) # add column with plant ID format like isotope metadata
 
 pere_isotope_data_fuller <- pere_isotope_data_full %>% left_join(y = plant_sla, by = "plant_ID") # add SLA data
