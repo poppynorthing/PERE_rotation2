@@ -85,23 +85,34 @@ emmeans(a1, specs = "site.x") %>% pairs()
 
 # Now I want to add in environmental predictors to understand how climate drives trait differences
 
-m1 <- lm(WUE ~ precip, data = isotope_data)
+isotope_mod_data <- isotope_data %>% group_by(site.x) %>% summarise(
+                                               mean_WUE = mean(WUE),
+                                               mean_N_percent = mean(N_percent),
+                                               mean_C.N = mean(C.N),
+                                               mean_SLA = mean(mean_sla),
+                                               temp = mean(temp),
+                                               precip = mean(precip),
+                                               elev = mean(elev),
+                                               vpd = mean(vpd))
+
+
+m1 <- lm(mean_WUE ~ precip, data = isotope_mod_data)
 check_model(m1)
 summary(m1)
 
-m2 <- lm(WUE ~ temp, data = isotope_data)
+m2 <- lm(mean_WUE ~ temp, data = isotope_mod_data)
 check_model(m2)
 summary(m2)
 
-m3 <- lm(WUE ~ vpd, data = isotope_data)
+m3 <- lm(mean_WUE ~ vpd, data = isotope_mod_data)
 check_model(m3)
 summary(m3)
 
-m4 <- lm(WUE ~ elev, data = isotope_data)
+m4 <- lm(mean_WUE ~ elev, data = isotope_mod_data)
 check_model(m4)
 summary(m4)
 
-m5 <- lm(WUE ~ precip + temp + elev + vpd, data = isotope_data)
+m5 <- lm(mean_WUE ~ precip + temp + vpd, data = isotope_mod_data)
 check_model(m5)
 summary(m5)
 

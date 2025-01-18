@@ -10,6 +10,10 @@ library(usmap)
 library(rgbif)
 library(tidyverse)
 library(dismo)
+library(terra)
+library(sf)
+library(climateR)
+library(biscale)
 
 # Load US map from geodata, save in current directory
 us <- gadm(country = "USA", level = 1, resolution = 2,
@@ -111,11 +115,17 @@ points(monica_sites$longitude, monica_sites$latitude, pch = 8, col = "black")
 ?options
 
 
+###################
+### Bi-color Map ###
+###################
 
+plot(usmex, border = "#3b3b3b", xlim = c(-120,-106.5), ylim = c(25.5,37.8))
 
+temp_terra = tavg$USA_wc2.1_30s_tavg_12
 
+ggplot(usmex, aes(x=longitude, y = latitude))
 
-
+?getWorldClim
 # Get elevation data from the internet for specified coordinates
 elev <- geodata_path("SRTM", download=T, lon=-76.6, lat=18.1)
 
