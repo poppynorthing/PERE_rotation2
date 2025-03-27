@@ -14,6 +14,7 @@ library(terra)
 library(sf)
 library(climateR)
 library(biscale)
+library(RColorBrewer)
 
 # Load US map from geodata, save in current directory
 us <- gadm(country = "USA", level = 1, resolution = 2,
@@ -25,6 +26,9 @@ usmex <- gadm(country = c("USA", "MEX"), level = 1, resolution = 2,
 # Load worldclim data for monthly average temp & precip in the USA from 1970-2000
 tavg <- worldclim_country("USA", var="tavg", res = 0.5, path=tempdir())
 prec <- worldclim_country("USA", var="prec", res = 0.5, path=tempdir())
+
+tavg_jan <- tavg$USA_wc2.1_30s_tavg_1
+prec_jan <- prec$USA_wc2.1_30s_prec_1
 
 # Create PCN site data frame with site coordinates
 lat <- c(32.44, 32.24, 32.34, 34.28, 33.84, 33.85, 32.77, 31.93, 34.24, 34.60, 34.72)
@@ -83,18 +87,18 @@ points(monica_sites$longitude, monica_sites$latitude, pch = 17, col = "#E9847A",
 # Plot the temp and precip data for December (month 2) with sites
 
 # Avg Winter Temp
-plot(tavg$USA_wc2.1_30s_tavg_12, xlim = c(-120,-106.5), ylim = c(25.5,37.8), col=terrain.colors(50))
-points(occs$longitude, occs$latitude, pch = 1, col = "darkgrey", cex = 0.5)
-points(sites$longitude, sites$latitude, pch = 8, col = "black", alpha = 0.5)
+plot(tavg$USA_wc2.1_30s_tavg_1, xlim = c(-120,-106.5), ylim = c(25.5,37.8), col=rev(brewer.pal(11, "Spectral")))
+points(occs$longitude, occs$latitude, pch = 1, col = "lightgrey", cex = 0.5)
+points(sites$longitude, sites$latitude, pch = 10, col = "black", alpha = 0.5, cex = 1.5)
 plot(usmex, border = "black", lwd = 1, add = TRUE)
 
 ?points
 
 # Total Precip (large region)
-plot(prec$USA_wc2.1_30s_prec_12, xlim = c(-120,-106.5), ylim = c(25.5,37.8), legend = TRUE, col=terrain.colors(50))
+plot(prec$USA_wc2.1_30s_prec_1, xlim = c(-120,-106.5), ylim = c(25.5,37.8), legend = TRUE, col=brewer.pal(11, "Spectral"))
 plot(usmex, border = "black", lwd = 1, add = TRUE)
-points(occs$longitude, occs$latitude, pch = 1, col = "darkgrey", cex = 0.5)
-points(sites$longitude, sites$latitude, pch = 8, col = "black")
+points(occs$longitude, occs$latitude, pch = 1, col = "lightgrey", cex = 0.5)
+points(sites$longitude, sites$latitude, pch = 10, col = "black", cex = 1.5)
 
 ?plot
 
